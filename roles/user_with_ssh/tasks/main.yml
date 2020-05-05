@@ -1,0 +1,26 @@
+---
+- name: Make sure we have 'system-users' group
+  group:
+    name: system-users
+    state: present
+
+- name: Create user
+  user:
+    name: "{{ user_name }}"
+    append: yes
+    groups:
+      - system-users
+    shell: "/bin/bash"
+
+- name: Allow 'system-users' group to have passwordless sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: "^%system-users"
+    line: "%system-users ALL=(ALL) NOPASSWD: ALL"
+    validate: visudo -cf %s
+
+- name: Add SSH keys to new user
+  authorized_key:
+    key: "{{ public_key }}"
+    user: "{{ user_name }}"

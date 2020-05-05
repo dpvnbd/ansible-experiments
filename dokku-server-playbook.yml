@@ -1,0 +1,23 @@
+---
+- name: create user on server, install dokku
+  hosts: all
+  remote_user: root
+
+  vars:
+    user_name: deployer-user
+    public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+    dokku_hostname: "b0ss.pp.ua"
+    dokku_plugins:
+      - name: postgres
+        url: https://github.com/dokku/dokku-postgres.git
+      - name: redis
+        url: https://github.com/dokku/dokku-redis.git
+
+    dokku_users:
+      - name: "{{ user_name }}"
+        username: "{{ user_name }}"
+        ssh_key: "{{ public_key }}"
+  roles:
+    - user_with_ssh
+    - dokku_bot.ansible_dokku
